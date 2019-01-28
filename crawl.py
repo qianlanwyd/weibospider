@@ -25,6 +25,7 @@ oidlist=['3937348351','2803301701','1699432410','2656274875','1618051664','20288
 weibo_url = 'https://m.weibo.cn/api/container/getIndex?type=uid&value='+oid
 weibo_list = ''
 flag=True
+cur_index = 0
 def use_proxy(url,proxy_addr):
 	req=urllib.request.Request(url)
 	req.add_header("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.221 Safari/537.36 SE 2.X MetaSr 1.0")
@@ -75,24 +76,35 @@ def get_html(url):
 	except:
 		flag=False
 		return "Something Wrong!"
-def save_weibo(text):
+def save_weibo():
 
+	global  cur_index
 	title_csv = ['发表时间','博文','点赞数量','评论数量','转发数量','博文链接']
 	filename="data.csv"
-	with open(filename,"w",newline ='') as csvfile:
+	with open(filename,"a+",newline ='') as csvfile:
 		weibo_csv = csv.writer(csvfile)
 		#weibo_csv.writerow(title_csv)
 		print('here')
 		print(len(save_list))
-		for weibo in save_list:
-			text=[]
-			text.append(weibo['发表时间'])
-			text.append(weibo['博文'])
-			text.append(weibo['点赞'])
-			text.append(weibo['评论'])
-			text.append(weibo['转发'])
-			text.append(weibo['博文链接'])
-			weibo_csv.writerow(text)
+		# for weibo in save_list:
+			# text=[]
+			# text.append(weibo['发表时间'])
+			# text.append(weibo['博文'])
+			# text.append(weibo['点赞'])
+			# text.append(weibo['评论'])
+			# text.append(weibo['转发'])
+			# text.append(weibo['博文链接'])
+			# weibo_csv.writerow(text)
+		text=[]
+		text.append(save_list[cur_index]['发表时间'])
+		text.append(save_list[cur_index]['博文'])
+		text.append(save_list[cur_index]['点赞'])
+		text.append(save_list[cur_index]['评论'])
+		text.append(save_list[cur_index]['转发'])
+		text.append(save_list[cur_index]['博文链接'])
+		weibo_csv.writerow(text)
+		cur_index = cur_index+1
+		
 	'''
 	 with open('刘雯weibo.txt','a') as f:
 		for txt in text:
@@ -100,7 +112,7 @@ def save_weibo(text):
 		f.close()
 	'''
 
-def get_content(url):
+def get_content():
 	url = 'https://m.weibo.cn/api/container/getIndex?type=uid&value=' + oid
 	global total_number,num,save_list
 	resp_data = get_html(url)
@@ -191,7 +203,7 @@ def get_content(url):
 				#print(text['发表时间'])
 				if(save_flag is True):
 					save_list.append(text)
-					save_weibo(text['博文'])
+					save_weibo()
 					#save_list.append(text['博文'])
 			print("获取"+str(num)+"条博文...")
 			# print(text_data)
@@ -205,7 +217,7 @@ def main():
 	print(oid)
 	#print(proxies)
 	try:
-		get_content(weibo_url)
+		get_content()
 	except Exception as e:
 		print("Error:", e)
 		traceback.print_exc()
